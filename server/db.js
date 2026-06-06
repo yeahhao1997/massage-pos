@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS tenants (
   address    TEXT,
   phone      TEXT,
   intro      TEXT,
+  photo      TEXT,                                -- 门店照片：图片URL 或 base64 data URL
   status     TEXT    NOT NULL DEFAULT 'active',  -- active / suspended
   created_at TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
 );
@@ -221,6 +222,9 @@ CREATE INDEX IF NOT EXISTS idx_oi_order ON order_items(order_id);
 CREATE INDEX IF NOT EXISTS idx_oi_tenant ON order_items(tenant_id);
 `);
 
+// 兼容已有数据库的轻量迁移 / lightweight migrations for existing DBs
+try { db.exec('ALTER TABLE tenants ADD COLUMN photo TEXT'); } catch { /* 已存在则忽略 */ }
+
 // ---------- 首次播种演示数据 / seed ----------
 const seeded = db.prepare('SELECT COUNT(*) AS n FROM users').get().n > 0;
 if (!seeded) {
@@ -239,48 +243,51 @@ if (!seeded) {
     console.warn('[db] ⚠ admin 使用默认密码 admin123 —— 上线前请用环境变量 ADMIN_PASSWORD 设置强密码');
   }
 
-  // 是否播种演示门店/会员：生产默认不播种（干净库），可用 SEED_DEMO=true 强制
-  const seedDemo = process.env.SEED_DEMO
-    ? process.env.SEED_DEMO === 'true'
-    : process.env.NODE_ENV !== 'production';
-  if (!seedDemo) {
-    console.log('[db] 已创建干净平台（仅 admin 账号），用平台管理员登录后入驻门店即可');
-  } else {
-
-  const insTenant = db.prepare('INSERT INTO tenants (name, city, address, phone, intro) VALUES (?,?,?,?,?)');
-  const t1 = insTenant.run('悦养生按摩 · KL店', 'Kuala Lumpur', 'Jalan Bukit Bintang 88', '03-1234 5678', '市中心高端精油按摩').lastInsertRowid;
-  const t2 = insTenant.run('悦养生按摩 · Penang店', 'Penang', 'Gurney Drive 12', '04-8765 4321', '槟城海景理疗会所').lastInsertRowid;
-
-  // 每家店的资料 / per-shop master data
-  const seedShop = (tid, owner, staffNames) => {
-    mkUser(owner.u, owner.p, 'shop_owner', tid, owner.name);
+  // 初始门店：Litter Malaysia 三店 + 标准服务菜单（数据库为空时播种，含免费版每次重置后）
+  const STD_SERVICES = [
+    ['全身精油按摩 Aromatherapy', '按摩', 90, 19800],
+    ['肩颈理疗 Neck & Shoulder', '理疗', 60, 12800],
+    ['足部反射 Foot Reflexology', '足疗', 60, 8800],
+    ['泰式按摩 Thai Massage', '按摩', 90, 16800],
+    ['香薰SPA Aroma SPA', 'SPA', 120, 26800],
+  ];
+  const seedShop = (t, owner, staffNames) => {
+    const tid = db.prepare('INSERT INTO tenants (name, city, address, phone, intro) VALUES (?,?,?,?,?)')
+      .run(t.name, t.city, t.address, t.phone, t.intro).lastInsertRowid;
+    mkUser(owner.u, owner.p, 'shop_owner', tid, t.name + ' 店老板');
     const insStaff = db.prepare('INSERT INTO staff (tenant_id, name, role, commission_rate) VALUES (?,?,?,?)');
     const staffIds = staffNames.map((n) => insStaff.run(tid, n, 'therapist', 0.2).lastInsertRowid);
     const insSvc = db.prepare('INSERT INTO services (tenant_id, name, category, duration_min, price) VALUES (?,?,?,?,?)');
-    insSvc.run(tid, '全身精油按摩 Aromatherapy', '按摩', 90, 19800);
-    insSvc.run(tid, '肩颈理疗 Neck & Shoulder', '理疗', 60, 12800);
-    insSvc.run(tid, '足部反射 Foot Reflexology', '足疗', 60, 8800);
+    STD_SERVICES.forEach((s) => insSvc.run(tid, ...s));
     const insRoom = db.prepare('INSERT INTO rooms (tenant_id, name) VALUES (?,?)');
-    ['Room 1', 'Room 2', 'Room 3', 'VIP'].forEach((r) => insRoom.run(tid, r));
+    ['Room 1', 'Room 2', 'Room 3', 'VIP'].forEach((rm) => insRoom.run(tid, rm));
     const insCard = db.prepare('INSERT INTO card_types (tenant_id, name, kind, price, bonus, times, valid_days) VALUES (?,?,?,?,?,?,?)');
     insCard.run(tid, '储值 RM500 送 RM50', 'stored_value', 50000, 5000, null, null);
     insCard.run(tid, '精油按摩 10 次卡', 'count', 178000, 0, 10, 365);
-    return staffIds;
+    return { tid, staffIds };
   };
-  const klStaff = seedShop(t1, { u: 'kl', p: 'kl123', name: 'KL 店老板' }, ['Amy', 'Siti']);
-  seedShop(t2, { u: 'penang', p: 'penang123', name: 'Penang 店老板' }, ['Mei', 'Ravi']);
 
-  // 平台通用会员 / universal members
+  const kl = seedShop(
+    { name: 'Litter Malaysia · KL店', city: 'Kuala Lumpur', address: 'Jalan Bukit Bintang 88', phone: '012-2234234', intro: '市中心 · 高端精油按摩 SPA' },
+    { u: 'kl', p: 'kl123' }, ['Amy', 'Siti']);
+  const jb = seedShop(
+    { name: 'Litter Malaysia · JB店', city: 'Johor Bahru', address: 'Sentosa Plaza JB', phone: '013-2234343', intro: '新山 · 舒压理疗会所' },
+    { u: 'jb', p: 'jb123' }, ['Mei', 'Ravi']);
+  const pg = seedShop(
+    { name: 'Litter Malaysia · PENANG店', city: 'Penang', address: 'Gurney Plaza', phone: '013-2234343', intro: '槟城 · 海景养生 SPA' },
+    { u: 'penang', p: 'penang123' }, ['Hui', 'Kumar']);
+
+  // dummy 平台通用会员（开业后换成真实顾客）
   const insM = db.prepare(
     'INSERT INTO members (member_no, name, phone, gender, level, balance, points, home_tenant_id) VALUES (?,?,?,?,?,?,?,?)'
   );
-  const m1 = insM.run('VIP0001', 'Tan Wei Ming', '012-3456789', 'M', '黄金会员', 0, 0, t1).lastInsertRowid;
-  const m2 = insM.run('VIP0002', 'Nurul Aina', '019-8765432', 'F', '普通会员', 0, 0, t2).lastInsertRowid;
+  const m1 = insM.run('VIP0001', 'Tan Wei Ming', '012-3456789', 'M', '黄金会员', 0, 0, kl.tid).lastInsertRowid;
+  const m2 = insM.run('VIP0002', 'Nurul Aina', '019-8765432', 'F', '普通会员', 0, 0, jb.tid).lastInsertRowid;
+  const m3 = insM.run('VIP0003', 'Lim Ah Huat', '016-7778888', 'M', '普通会员', 0, 0, pg.tid).lastInsertRowid;
+  const m4 = insM.run('VIP0004', 'Siti Sarah', '011-2223333', 'F', '黄金会员', 0, 0, kl.tid).lastInsertRowid;
 
-  // 演示「跨店」流水：会员在 KL 店充 RM1000，却在 Penang 店消费 RM300
-  // → 体现中央钱包 + 店间结算
   const recharge = db.transaction((memberId, tenantId, amt, staffId) => {
-    const m = db.prepare('SELECT balance, points FROM members WHERE id=?').get(memberId);
+    const m = db.prepare('SELECT balance FROM members WHERE id=?').get(memberId);
     const after = m.balance + amt;
     db.prepare('UPDATE members SET balance=?, points=points+? WHERE id=?').run(after, Math.floor(amt / 100), memberId);
     db.prepare(`INSERT INTO transactions (member_id, tenant_id, type, amount, balance_after, points_delta, staff_id, note)
@@ -293,9 +300,13 @@ if (!seeded) {
     db.prepare(`INSERT INTO transactions (member_id, tenant_id, type, amount, balance_after, staff_id, note)
                 VALUES (?,?,'consume',?,?,?,?)`).run(memberId, tenantId, -amt, after, staffId, '余额消费 Balance spend');
   });
-  recharge(m1, t1, 100000, klStaff[0]); // KL 店收了 RM1000
-  consume(m1, t2, 30000, null);          // 在 Penang 店花了 RM300
+  // 跨店流水演示，让报表/店间结算有数据
+  recharge(m1, kl.tid, 100000, kl.staffIds[0]); // VIP0001 在 KL 充 RM1000
+  consume(m1, jb.tid, 30000, jb.staffIds[0]);    // 在 JB 花 RM300
+  recharge(m2, jb.tid, 50000, jb.staffIds[1]);  // VIP0002 在 JB 充 RM500
+  recharge(m3, pg.tid, 80000, pg.staffIds[0]);  // VIP0003 在 Penang 充 RM800
+  consume(m3, kl.tid, 20000, kl.staffIds[1]);    // 在 KL 花 RM200
+  recharge(m4, kl.tid, 200000, kl.staffIds[0]); // VIP0004 在 KL 充 RM2000
 
-  console.log('[db] 多商户演示数据已播种 (admin/admin123, kl/kl123, penang/penang123)');
-  } // end else (seedDemo)
+  console.log('[db] 初始数据已播种：Litter Malaysia KL/JB/Penang + dummy 会员 (kl/kl123, jb/jb123, penang/penang123)');
 }

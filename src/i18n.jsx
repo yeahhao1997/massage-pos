@@ -86,6 +86,9 @@ const EN = {
   '＋ 入驻新门店': '+ Onboard Shop', '入驻新门店': 'Onboard New Shop', '门店已入驻': 'Shop onboarded',
   '营业中': 'Open', '已暂停': 'Suspended', '订单': 'Orders', '暂停营业': 'Suspend', '恢复营业': 'Reactivate',
   '门店名称 *': 'Shop Name *', '城市': 'City', '地址': 'Address', '电话': 'Phone', '简介': 'Intro',
+  '编辑': 'Edit', '编辑门店': 'Edit Shop', '保存': 'Save', '已保存': 'Saved',
+  '门店照片': 'Shop Photo', '无照片': 'No photo', '选择照片': 'Choose photo',
+  '移除': 'Remove', '或粘贴图片链接 https://...': 'Or paste image URL https://...',
   '店老板登录账号 *': 'Owner Username *', '店老板密码 *': 'Owner Password *', '确认入驻': 'Confirm Onboarding',
   '净额 = 该店收的充值款 − 该店核销的服务额。正数=该店欠平台，负数=平台应付该店。':
     'Net = top-ups collected − service value redeemed. Positive: shop owes platform; negative: platform owes shop.',

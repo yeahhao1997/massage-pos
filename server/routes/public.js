@@ -32,8 +32,8 @@ r.get('/cities', (_req, res) => {
 r.get('/tenants', (req, res) => {
   const city = req.query.city;
   const rows = (city
-    ? db.prepare(`SELECT id,name,city,address,phone,intro FROM tenants WHERE status='active' AND city=? ORDER BY name`).all(city)
-    : db.prepare(`SELECT id,name,city,address,phone,intro FROM tenants WHERE status='active' ORDER BY city,name`).all()
+    ? db.prepare(`SELECT id,name,city,address,phone,intro,photo FROM tenants WHERE status='active' AND city=? ORDER BY name`).all(city)
+    : db.prepare(`SELECT id,name,city,address,phone,intro,photo FROM tenants WHERE status='active' ORDER BY city,name`).all()
   ).map((t) => ({
     ...t,
     service_count: db.prepare('SELECT COUNT(*) AS n FROM services WHERE tenant_id=? AND active=1').get(t.id).n,
@@ -44,7 +44,7 @@ r.get('/tenants', (req, res) => {
 
 // 门店详情 + 服务 + 技师
 r.get('/tenants/:id', (req, res) => {
-  const t = db.prepare(`SELECT id,name,city,address,phone,intro FROM tenants WHERE id=? AND status='active'`).get(req.params.id);
+  const t = db.prepare(`SELECT id,name,city,address,phone,intro,photo FROM tenants WHERE id=? AND status='active'`).get(req.params.id);
   if (!t) return res.status(404).json({ error: '门店不存在' });
   t.services = db.prepare('SELECT id,name,category,duration_min,price FROM services WHERE tenant_id=? AND active=1 ORDER BY id').all(t.id);
   t.staff = db.prepare(`SELECT id,name FROM staff WHERE tenant_id=? AND active=1 AND role='therapist' ORDER BY id`).all(t.id);

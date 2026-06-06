@@ -27,7 +27,12 @@ export default function Shops() {
 
       <div className="grid gap-3 sm:grid-cols-2">
         {shops.map((s) => (
-          <Link key={s.id} to={`/m/shop/${s.id}`} className="card transition hover:ring-brand-300">
+          <Link key={s.id} to={`/m/shop/${s.id}`} className="card overflow-hidden transition hover:ring-brand-300">
+            <div className="-mx-5 -mt-5 mb-3 h-36 w-[calc(100%+2.5rem)] overflow-hidden rounded-t-2xl bg-brand-50">
+              {s.photo
+                ? <img src={s.photo} alt="" className="h-full w-full object-cover" />
+                : <div className="flex h-full items-center justify-center text-4xl">💆</div>}
+            </div>
             <div className="flex items-start justify-between">
               <div>
                 <div className="text-lg font-semibold">{s.name}</div>

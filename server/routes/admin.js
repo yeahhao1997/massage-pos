@@ -19,7 +19,7 @@ r.get('/tenants', (req, res) => {
 
 // 新增门店（同时建一个店老板账号）
 r.post('/tenants', (req, res) => {
-  const { name, city, address, phone, intro, owner_username, owner_password } = req.body;
+  const { name, city, address, phone, intro, photo, owner_username, owner_password } = req.body;
   if (!name) return res.status(400).json({ error: '门店名称必填' });
   if (!owner_username || !owner_password) return res.status(400).json({ error: '店老板账号和密码必填' });
 
@@ -27,8 +27,8 @@ r.post('/tenants', (req, res) => {
   if (exists) return res.status(409).json({ error: '该账号已存在' });
 
   const tx = db.transaction(() => {
-    const tid = db.prepare('INSERT INTO tenants (name, city, address, phone, intro) VALUES (?,?,?,?,?)')
-      .run(name, city || null, address || null, phone || null, intro || null).lastInsertRowid;
+    const tid = db.prepare('INSERT INTO tenants (name, city, address, phone, intro, photo) VALUES (?,?,?,?,?,?)')
+      .run(name, city || null, address || null, phone || null, intro || null, photo || null).lastInsertRowid;
     const { salt, hash } = hashPassword(owner_password);
     db.prepare(`INSERT INTO users (username, pass_hash, pass_salt, role, tenant_id, name)
                 VALUES (?,?,?,'shop_owner',?,?)`).run(owner_username, hash, salt, tid, name + ' 店老板');
@@ -39,11 +39,11 @@ r.post('/tenants', (req, res) => {
 
 // 停用 / 启用门店
 r.put('/tenants/:id', (req, res) => {
-  const { status, name, city, address, phone, intro } = req.body;
+  const { status, name, city, address, phone, intro, photo } = req.body;
   const t = db.prepare('SELECT * FROM tenants WHERE id = ?').get(req.params.id);
   if (!t) return res.status(404).json({ error: '门店不存在' });
-  db.prepare('UPDATE tenants SET status=?, name=?, city=?, address=?, phone=?, intro=? WHERE id=?')
-    .run(status ?? t.status, name ?? t.name, city ?? t.city, address ?? t.address, phone ?? t.phone, intro ?? t.intro, t.id);
+  db.prepare('UPDATE tenants SET status=?, name=?, city=?, address=?, phone=?, intro=?, photo=? WHERE id=?')
+    .run(status ?? t.status, name ?? t.name, city ?? t.city, address ?? t.address, phone ?? t.phone, intro ?? t.intro, photo ?? t.photo, t.id);
   res.json(db.prepare('SELECT * FROM tenants WHERE id = ?').get(t.id));
 });
 

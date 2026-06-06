@@ -17,7 +17,12 @@ export default function ShopDetail() {
   return (
     <div className="space-y-4">
       <Link to="/m" className="text-sm text-brand-600">‹ {t('返回门店列表')}</Link>
-      <div className="card">
+      <div className="card overflow-hidden">
+        <div className="-mx-5 -mt-5 mb-4 h-48 w-[calc(100%+2.5rem)] overflow-hidden rounded-t-2xl bg-brand-50">
+          {shop.photo
+            ? <img src={shop.photo} alt="" className="h-full w-full object-cover" />
+            : <div className="flex h-full items-center justify-center text-6xl">💆</div>}
+        </div>
         <h1 className="text-2xl font-bold">{shop.name}</h1>
         <div className="mt-1 text-sm text-slate-400">📍 {shop.city} · {shop.address}　☎ {shop.phone}</div>
         {shop.intro && <p className="mt-2 text-slate-600">{shop.intro}</p>}
