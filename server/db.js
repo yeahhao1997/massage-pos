@@ -252,8 +252,8 @@ if (!seeded) {
     ['香薰SPA Aroma SPA', 'SPA', 120, 26800],
   ];
   const seedShop = (t, owner, staffNames) => {
-    const tid = db.prepare('INSERT INTO tenants (name, city, address, phone, intro) VALUES (?,?,?,?,?)')
-      .run(t.name, t.city, t.address, t.phone, t.intro).lastInsertRowid;
+    const tid = db.prepare('INSERT INTO tenants (name, city, address, phone, intro, photo) VALUES (?,?,?,?,?,?)')
+      .run(t.name, t.city, t.address, t.phone, t.intro, t.photo || null).lastInsertRowid;
     mkUser(owner.u, owner.p, 'shop_owner', tid, t.name + ' 店老板');
     const insStaff = db.prepare('INSERT INTO staff (tenant_id, name, role, commission_rate) VALUES (?,?,?,?)');
     const staffIds = staffNames.map((n) => insStaff.run(tid, n, 'therapist', 0.2).lastInsertRowid);
@@ -268,13 +268,13 @@ if (!seeded) {
   };
 
   const kl = seedShop(
-    { name: 'Litter Malaysia · KL店', city: 'Kuala Lumpur', address: 'Jalan Bukit Bintang 88', phone: '012-2234234', intro: '市中心 · 高端精油按摩 SPA' },
+    { name: 'Litter Malaysia · KL店', city: 'Kuala Lumpur', address: 'Jalan Bukit Bintang 88', phone: '012-2234234', intro: '市中心 · 高端精油按摩 SPA', photo: '/shops/kl.jpg' },
     { u: 'kl', p: 'kl123' }, ['Amy', 'Siti']);
   const jb = seedShop(
-    { name: 'Litter Malaysia · JB店', city: 'Johor Bahru', address: 'Sentosa Plaza JB', phone: '013-2234343', intro: '新山 · 舒压理疗会所' },
+    { name: 'Litter Malaysia · JB店', city: 'Johor Bahru', address: 'Sentosa Plaza JB', phone: '013-2234343', intro: '新山 · 舒压理疗会所', photo: '/shops/jb.jpg' },
     { u: 'jb', p: 'jb123' }, ['Mei', 'Ravi']);
   const pg = seedShop(
-    { name: 'Litter Malaysia · PENANG店', city: 'Penang', address: 'Gurney Plaza', phone: '013-2234343', intro: '槟城 · 海景养生 SPA' },
+    { name: 'Litter Malaysia · PENANG店', city: 'Penang', address: 'Gurney Plaza', phone: '013-2234343', intro: '槟城 · 海景养生 SPA', photo: '/shops/penang.jpg' },
     { u: 'penang', p: 'penang123' }, ['Hui', 'Kumar']);
 
   // dummy 平台通用会员（开业后换成真实顾客）
