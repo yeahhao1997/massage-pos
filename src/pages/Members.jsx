@@ -157,7 +157,7 @@ function DetailModal({ member, onClose, onChanged }) {
             </div>
           </div>
 
-          <div className="flex gap-1 rounded-lg bg-slate-100 p-1 text-sm">
+          <div className="flex gap-1 rounded-lg bg-brand-50 p-1 text-sm">
             {[['recharge', '充值'], ['consume', '扣款'], ['cards', '次卡']].map(([k, l]) => (
               <button key={k} onClick={() => setTab(k)}
                 className={'flex-1 rounded-md py-1.5 ' + (tab === k ? 'bg-white font-medium shadow-sm' : 'text-slate-500')}>{t(l)}</button>
@@ -167,8 +167,8 @@ function DetailModal({ member, onClose, onChanged }) {
           {tab === 'recharge' && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <Field label={t('充值金额(元)')}><input className="input" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} /></Field>
-                <Field label={t('赠送金额(元)')}><input className="input" type="number" value={bonus} onChange={(e) => setBonus(e.target.value)} /></Field>
+                <Field label={t('充值金额(RM)')}><input className="input" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} /></Field>
+                <Field label={t('赠送金额(RM)')}><input className="input" type="number" value={bonus} onChange={(e) => setBonus(e.target.value)} /></Field>
               </div>
               <div className="flex flex-wrap gap-1">
                 {[500, 1000, 2000, 5000].map((v) => (
@@ -186,7 +186,7 @@ function DetailModal({ member, onClose, onChanged }) {
 
           {tab === 'consume' && (
             <div className="space-y-3">
-              <Field label={t('扣款金额(元)')}><input className="input" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} /></Field>
+              <Field label={t('扣款金额(RM)')}><input className="input" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} /></Field>
               <Field label={t('备注')}><input className="input" value={note} onChange={(e) => setNote(e.target.value)} /></Field>
               <button className="btn-danger w-full" onClick={consume}>{t('余额扣款')}</button>
             </div>

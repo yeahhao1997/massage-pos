@@ -7,7 +7,7 @@ import MemberAccount from './MemberAccount.jsx';
 export default function MarketApp() {
   const { t, lang, toggle } = useT();
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-cream">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur">
         <NavLink to="/m" className="text-lg font-bold text-brand-700">💆 {t('按摩院平台')}</NavLink>
         <div className="flex items-center gap-2 text-sm">

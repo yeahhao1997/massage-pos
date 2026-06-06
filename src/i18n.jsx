@@ -10,7 +10,7 @@ const EN = {
 
   // 通用 / common
   '搜索': 'Search', '备注': 'Note', '余额': 'Balance', '积分': 'Points',
-  '元': 'CNY', '支付方式': 'Payment', '微信': 'WeChat', '支付宝': 'Alipay',
+  '元': 'RM', '支付方式': 'Payment', '微信': 'WeChat', '支付宝': 'Alipay',
   '现金': 'Cash', '银行卡': 'Card', '会员余额': 'Member Balance',
   '今天': 'Today', '查询': 'Query', '合计': 'Total', '暂无数据': 'No data',
   '暂无记录': 'No records', '散客': 'Walk-in', '未分配': 'Unassigned',
@@ -34,9 +34,9 @@ const EN = {
   '会员等级': 'Level', '普通会员': 'Regular', '黄金会员': 'Gold', '钻石会员': 'Diamond',
   '确认开卡': 'Create Card', '开卡成功': 'Card created',
   '充值': 'Top-up', '扣款': 'Deduct', '次卡': 'Pass', '储值余额': 'Stored Balance',
-  '充值金额(元)': 'Top-up (CNY)', '赠送金额(元)': 'Bonus (CNY)',
+  '充值金额(RM)': 'Top-up (RM)', '赠送金额(RM)': 'Bonus (RM)',
   '确认充值': 'Confirm Top-up', '充值成功': 'Top-up done',
-  '扣款金额(元)': 'Deduct (CNY)', '余额扣款': 'Deduct from Balance', '扣款成功': 'Deducted',
+  '扣款金额(RM)': 'Deduct (RM)', '余额扣款': 'Deduct from Balance', '扣款成功': 'Deducted',
   '期限卡': 'Period card', '到期': 'Expires', '核销1次': 'Redeem 1', '核销成功': 'Redeemed',
   '剩': 'Left', '次': 'left',
   '暂无次卡': 'No passes', '消费/充值流水': 'Transactions',

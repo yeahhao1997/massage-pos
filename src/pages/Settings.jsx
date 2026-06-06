@@ -96,7 +96,7 @@ export default function Settings() {
     <div className="space-y-4">
       <h1 className="text-xl font-bold">{t('设置 · 基础资料')}</h1>
 
-      <div className="flex flex-wrap gap-1 rounded-lg bg-slate-100 p-1 text-sm">
+      <div className="flex flex-wrap gap-1 rounded-lg bg-brand-50 p-1 text-sm">
         {Object.entries(TABS).map(([k, d]) => (
           <button key={k} onClick={() => setTab(k)}
             className={'rounded-md px-3 py-1.5 ' + (tab === k ? 'bg-white font-medium shadow-sm' : 'text-slate-500')}>

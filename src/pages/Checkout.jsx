@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { get, post, money, yuan } from '../lib.js';
+import { get, post, money } from '../lib.js';
 import { useToast } from '../ui.jsx';
 import { useT } from '../i18n.jsx';
 
@@ -78,7 +78,7 @@ export default function Checkout() {
 
         <select className="input" value={memberId} onChange={(e) => setMemberId(e.target.value)}>
           <option value="">{t('散客（不绑定会员）')}</option>
-          {cat.members.map((m) => <option key={m.id} value={m.id}>{m.name} · {t('余额')}{yuan(m.balance)}</option>)}
+          {cat.members.map((m) => <option key={m.id} value={m.id}>{m.name} · {t('余额')} {money(m.balance)}</option>)}
         </select>
 
         <div className="max-h-72 space-y-2 overflow-y-auto">
@@ -119,7 +119,7 @@ export default function Checkout() {
         </div>
         {pay === 'balance' && member && (
           <div className={'text-center text-xs ' + (member.balance >= total ? 'text-slate-400' : 'text-rose-600')}>
-            {t('会员余额')} {yuan(member.balance)}
+            {t('会员余额')} {money(member.balance)}
           </div>
         )}
 
