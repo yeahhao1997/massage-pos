@@ -1,0 +1,11 @@
+node_modules
+dist
+data
+.git
+.gitignore
+*.log
+npm-debug.log*
+*.bat
+README.md
+FEATURES.md
+DEPLOY.md
